@@ -3,6 +3,7 @@ module golang-mvc-webapp
 go 1.13
 
 require (
+	github.com/asaskevich/govalidator v0.0.0-20200108200545-475eaeb16496
 	github.com/gorilla/mux v1.7.3
 	github.com/gorilla/schema v1.1.0
 	github.com/joho/godotenv v1.3.0

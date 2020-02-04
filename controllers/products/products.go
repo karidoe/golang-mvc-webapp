@@ -21,8 +21,14 @@ func createAction(w http.ResponseWriter, r *http.Request) {
 	response := &Response{
 		Success: true,
 		Message: "Created Successfully!!",
-		Data: []models.ProductItem{item},
+		Data: []models.ProductItem{},
 	}
+
+	if valid, err := item.IsValid(); !valid {
+		response.Success = false
+		response.Message = err.Error()
+	}
+
 	if err := ProductModel.Create(item); err != nil {
 		response.Success = false
 		response.Message = err.Error()

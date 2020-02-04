@@ -2,7 +2,6 @@ version: "3"
 services:
   base-image:
     image: base-image
-    build: ./build/base-image
 
   mongo:
     image: mongo
@@ -25,7 +24,7 @@ services:
       ME_CONFIG_MONGODB_ADMINUSERNAME: ${MONGO_INITDB_ROOT_USERNAME}
       ME_CONFIG_MONGODB_ADMINPASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
   backend-server:
-    image: base-image
+    build: ./build/base-image
     depends_on:
         - "mongo"
         - "mongo-express"
