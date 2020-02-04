@@ -7,35 +7,49 @@ import (
 )
 
 type Response struct {
-	Success bool   `json:"success"`
-	Message string `json:"message,omitempty"`
+	Success bool                 `json:"success"`
+	Message string               `json:"message,omitempty"`
 	Data    []models.ProductItem `json: data, omitempty"`
+}
+
+type ErrorResponse struct {
+	Success bool                   `json:"success"`
+	Message string                 `json:"message,omitempty"`
+	Errors  map[string]interface{} `json: errors"`
 }
 
 var ProductModel *models.ProductModel = models.GetProductModel()
 
 func createAction(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json;charset=utf-8")
+
+	var isError bool = false
 	var item models.ProductItem
 	_ = json.NewDecoder(r.Body).Decode(&item)
 
-	response := &Response{
-		Success: true,
-		Message: "Created Successfully!!",
-		Data: []models.ProductItem{},
-	}
-
-	if valid, err := item.IsValid(); !valid {
-		response.Success = false
-		response.Message = err.Error()
+	if err := item.Validate(); err != nil {
+		json.NewEncoder(w).Encode(&ErrorResponse{
+			Success: false,
+			Message: "Validation Error",
+			Errors:  err,
+		})
+		return
 	}
 
 	if err := ProductModel.Create(item); err != nil {
-		response.Success = false
-		response.Message = err.Error()
+		json.NewEncoder(w).Encode(&ErrorResponse{
+			Success: false,
+			Message: "Could not insert data",
+			Errors:  map[string]interface{}{},
+		})
+		return
 	}
 
-	w.Header().Set("Content-Type", "application/json;charset=utf-8")
-	json.NewEncoder(w).Encode(response)
+	json.NewEncoder(w).Encode(&Response{
+		Success: true,
+		Message: "Created Successfully",
+		Data:    []models.ProductItem{item},
+	})
 }
 
 func indexAction(w http.ResponseWriter, r *http.Request) {
@@ -51,5 +65,5 @@ func indexAction(w http.ResponseWriter, r *http.Request) {
 	response.Success = true
 	response.Data = results
 
-	_ = json.NewEncoder(w).Encode(results)
+	json.NewEncoder(w).Encode(results)
 }

@@ -1,23 +1,24 @@
 package models
 
 import (
-	validator "github.com/asaskevich/govalidator"
+	"github.com/go-playground/validator/v10"
 	"golang-mvc-webapp/config"
 	"golang-mvc-webapp/db"
 	"gopkg.in/mgo.v2/bson"
+	"log"
 )
 
-type ProductModel struct {}
+type ProductModel struct{}
 
 type ProductItem struct {
-	Id bson.ObjectId `json:"id" bson:"_id,omitempty"`
-	Sku string `json:"sku" valid:"type(string)|required"`
-	Name string `json:"name" valid:"type(string)|required"`
-	Price float64 `json:"price" valid:"required"`
+	Id    bson.ObjectId `json:"id" bson:"_id,omitempty"`
+	Sku   string        `json:"sku" validate:"required,numeric"`
+	Name  string        `json:"name" validate:"required"`
+	Price float64       `json:"price" validate:"required,numeric"`
 }
 
 var (
-	DB *db.Mongodb
+	DB     *db.Mongodb
 	dbName = config.Getenv("APP_MONGO_DATABASE")
 )
 
@@ -43,7 +44,14 @@ func (c *ProductModel) All() ([]ProductItem, error) {
 	return results, err
 }
 
-func (item *ProductItem) IsValid() (bool, error) {
-	valid, err := validator.ValidateStruct(item)
-	return valid, err
+func (item *ProductItem) Validate() map[string]interface{} {
+	var result map[string]interface{}
+	if err := validator.New().Struct(item); err != nil {
+		for _, e := range err.(validator.ValidationErrors) {
+			result[e.Field()] = e
+		}
+	}
+
+	log.Print(result)
+	return result
 }

@@ -32,7 +32,7 @@ services:
     ports:
       - '80:80'
     volumes:
-      - ./:/go/src/gitlab.com/karidoe/lab-golang
-    working_dir: /go/src/gitlab.com/karidoe/lab-golang
+      - ./:/go/src/github.com/karidoe/app
+    working_dir: /go/src/github.com/karidoe/app
     links:
       - mongo
