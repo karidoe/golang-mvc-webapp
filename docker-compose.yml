@@ -4,6 +4,7 @@ services:
     image: base-image
 
   mongo:
+    container_name: mongodb
     image: mongo
     restart: always
     environment:
@@ -14,6 +15,7 @@ services:
       - ./init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
       
   mongo-express:
+    container_name: mongo-express
     image: mongo-express
     restart: always
     depends_on:
@@ -23,16 +25,16 @@ services:
     environment:
       ME_CONFIG_MONGODB_ADMINUSERNAME: ${MONGO_INITDB_ROOT_USERNAME}
       ME_CONFIG_MONGODB_ADMINPASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+
   backend-server:
+    container_name: app
     build: ./build/base-image
     depends_on:
         - "mongo"
         - "mongo-express"
     command: CompileDaemon --build="go build -o /go/bin/main main.go" -command="/go/bin/main"
     ports:
-      - '80:80'
+      - '80:8001'
     volumes:
       - ./:/go/src/github.com/karidoe/app
     working_dir: /go/src/github.com/karidoe/app
-    links:
-      - mongo

@@ -1,11 +1,11 @@
 package models
 
 import (
-	"github.com/go-playground/validator/v10"
+	"github.com/go-playground/validator"
 	"golang-mvc-webapp/config"
 	"golang-mvc-webapp/db"
 	"gopkg.in/mgo.v2/bson"
-	"log"
+	//"log"
 )
 
 type ProductModel struct{}
@@ -44,14 +44,12 @@ func (c *ProductModel) All() ([]ProductItem, error) {
 	return results, err
 }
 
-func (item *ProductItem) Validate() map[string]interface{} {
-	var result map[string]interface{}
-	if err := validator.New().Struct(item); err != nil {
+func (item *ProductItem) Validate() map[string]string {
+	result := make(map[string]string)
+	if err := validate.Struct(item); err != nil {
 		for _, e := range err.(validator.ValidationErrors) {
-			result[e.Field()] = e
+			result[e.Field()] = e.(error).Error()
 		}
 	}
-
-	log.Print(result)
 	return result
 }
