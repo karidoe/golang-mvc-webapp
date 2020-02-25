@@ -1,8 +1,5 @@
 version: "3"
 services:
-  base-image:
-    image: base-image
-
   mongo:
     container_name: mongodb
     image: mongo
