@@ -59,7 +59,7 @@ func (c *ProductModel) Validate(item ProductItem) map[string]string {
 		for _, err := range errs.(validator.ValidationErrors) {
 			messages[err.Field()] = err.(error).Error()
 		}
+		return messages
 	}
-
-	return messages
+	return nil
 }
