@@ -37,6 +37,7 @@ func createAction(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := ProductModel.Create(item); err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(w).Encode(&ErrorResponse{
 			Success: false,
 			Message: "Could not insert data",
@@ -45,6 +46,7 @@ func createAction(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(&Response{
 		Success: true,
 		Message: "Created Successfully",
