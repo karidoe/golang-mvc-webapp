@@ -2,7 +2,6 @@ package products
 
 import (
 	"encoding/json"
-	"github.com/go-playground/validator/v10"
 	"golang-mvc-webapp/models"
 	"net/http"
 )
@@ -14,8 +13,8 @@ type Response struct {
 }
 
 type ErrorResponse struct {
-	Success bool                   `json:"success"`
-	Message string                 `json:"message,omitempty"`
+	Success bool              `json:"success"`
+	Message string            `json:"message,omitempty"`
 	Errors  map[string]string `json: errors"`
 }
 
@@ -27,24 +26,11 @@ func createAction(w http.ResponseWriter, r *http.Request) {
 	var item models.ProductItem
 	_ = json.NewDecoder(r.Body).Decode(&item)
 
-	if errs := validator.New().Struct(item); errs != nil {
-		errors := make(map[string]string)
-		for _, err := range errs.(validator.ValidationErrors) {
-			errors[err.Field()] = err.(error).Error()
-		}
-		json.NewEncoder(w).Encode(&ErrorResponse{
-			Success: false,
-			Message: "Validation Error",
-			Errors:  errors,
-		})
-		return
-	}
-
 	if err := ProductModel.Create(item); err != nil {
 		json.NewEncoder(w).Encode(&ErrorResponse{
 			Success: false,
 			Message: "Could not insert data",
-			Errors:  map[string]string{"info":"Hello world!"},
+			Errors:  map[string]string{"info": "Hello world!"},
 		})
 		return
 	}
