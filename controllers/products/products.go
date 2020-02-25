@@ -26,6 +26,16 @@ func createAction(w http.ResponseWriter, r *http.Request) {
 	var item models.ProductItem
 	_ = json.NewDecoder(r.Body).Decode(&item)
 
+	if errors := ProductModel.Validate(item); errors != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(&ErrorResponse{
+			Success: false,
+			Message: "Validation Error",
+			Errors:  errors,
+		})
+		return
+	}
+
 	if err := ProductModel.Create(item); err != nil {
 		json.NewEncoder(w).Encode(&ErrorResponse{
 			Success: false,

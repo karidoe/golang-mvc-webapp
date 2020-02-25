@@ -1,6 +1,8 @@
 package models
 
 import (
+	"fmt"
+	"github.com/go-playground/validator/v10"
 	"golang-mvc-webapp/config"
 	"golang-mvc-webapp/db"
 	"gopkg.in/mgo.v2/bson"
@@ -16,11 +18,16 @@ type ProductItem struct {
 }
 
 var (
-	DB     *db.Mongodb
-	dbName = config.Getenv("APP_MONGO_DATABASE")
+	DB       *db.Mongodb
+	dbName   = config.Getenv("APP_MONGO_DATABASE")
+	validate = validator.New()
 )
 
 func GetProductModel() *ProductModel {
+	return &ProductModel{}
+}
+
+func New() *ProductModel {
 	return &ProductModel{}
 }
 
@@ -40,4 +47,19 @@ func (c *ProductModel) All() ([]ProductItem, error) {
 	var results []ProductItem
 	err := session.DB(dbName).C("products").Find(bson.M{}).All(&results)
 	return results, err
+}
+
+func (c *ProductModel) Validate(item ProductItem) map[string]string {
+	errs := validate.Struct(item)
+	messages := make(map[string]string)
+
+	fmt.Println(errs)
+
+	if errs != nil {
+		for _, err := range errs.(validator.ValidationErrors) {
+			messages[err.Field()] = err.(error).Error()
+		}
+	}
+
+	return messages
 }
