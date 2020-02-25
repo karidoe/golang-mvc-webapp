@@ -1,8 +1,5 @@
 version: "3"
 services:
-  base-image:
-    image: base-image
-
   mongo:
     container_name: mongodb
     image: mongo
@@ -34,7 +31,9 @@ services:
         - "mongo-express"
     command: CompileDaemon --build="go build -o /go/bin/main main.go" -command="/go/bin/main"
     ports:
-      - '80:8001'
+      - '80:80'
+    environment:
+      GOBIN: /go/bin
     volumes:
       - ./:/go/src/github.com/karidoe/app
     working_dir: /go/src/github.com/karidoe/app
