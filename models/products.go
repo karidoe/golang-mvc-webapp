@@ -1,7 +1,6 @@
 package models
 
 import (
-	"fmt"
 	"github.com/go-playground/validator/v10"
 	"golang-mvc-webapp/config"
 	"golang-mvc-webapp/db"
@@ -52,8 +51,6 @@ func (c *ProductModel) All() ([]ProductItem, error) {
 func (c *ProductModel) Validate(item ProductItem) map[string]string {
 	errs := validate.Struct(item)
 	messages := make(map[string]string)
-
-	fmt.Println(errs)
 
 	if errs != nil {
 		for _, err := range errs.(validator.ValidationErrors) {
