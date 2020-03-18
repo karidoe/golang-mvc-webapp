@@ -1,5 +1,28 @@
 version: "3"
 services:
+  zookeeper:
+    container_name: zookeeper
+    image: wurstmeister/zookeeper
+    ports:
+      - "2181:2181"
+  kafka:
+    container_name: kafka
+    depends_on:
+      - zookeeper
+    build: ./docker-files/kafka
+    ports:
+      - "9092:9092"
+      - "29092:29092"
+    environment:
+      KAFKA_ADVERTISED_LISTENERS: INSIDE://kafka:29092,OUTSIDE://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INSIDE:PLAINTEXT,OUTSIDE:PLAINTEXT
+      KAFKA_LISTENERS: INSIDE://0.0.0.0:29092,OUTSIDE://0.0.0.0:9092
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_INTER_BROKER_LISTENER_NAME: INSIDE
+      KAFKA_CREATE_TOPICS: createOrder:1:1
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
   mongo:
     container_name: mongodb
     image: mongo
@@ -9,7 +32,7 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
       MONGO_INITDB_DATABASE: ${MONGO_INITDB_DATABASE}
     volumes: 
-      - ./init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
+      - ./docker-files/web/init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
       
   mongo-express:
     container_name: mongo-express
@@ -24,8 +47,8 @@ services:
       ME_CONFIG_MONGODB_ADMINPASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
 
   backend-server:
-    container_name: app
-    build: ./build/base-image
+    container_name: backend-server
+    build: ./docker-files/web
     depends_on:
         - "mongo"
         - "mongo-express"

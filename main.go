@@ -12,15 +12,13 @@ import (
 )
 
 func init() {
-	fmt.Println("INITQQ")
-	p, err := kafka.NewProducer(&kafka.ConfigMap{"bootstrap.servers": "host.docker.internal:9092"})
+	p, err := kafka.NewProducer(&kafka.ConfigMap{"bootstrap.servers": "kafka:29092"})
 	if err != nil {
 		panic(err)
 	}
 
 	defer p.Close()
 
-	// Delivery report handler for produced messages
 	go func() {
 		for e := range p.Events() {
 			fmt.Println(e)
@@ -36,9 +34,8 @@ func init() {
 	}()
 
 	// Produce messages to topic (asynchronously)
-	topic := "test"
-	for _, word := range []string{"Welcome", "to", "the", "Confluent", "Kafka", "Golang", "client"} {
-		fmt.Println(word)
+	topic := "createOrder"
+	for _, word := range []string{"{orderCreated:9000202}"} {
 		p.Produce(&kafka.Message{
 			TopicPartition: kafka.TopicPartition{Topic: &topic, Partition: kafka.PartitionAny},
 			Value:          []byte(word),
