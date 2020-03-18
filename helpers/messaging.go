@@ -19,6 +19,7 @@ func init() {
 	var err error
 	producer, err = kafka.NewProducer(&kafka.ConfigMap{"bootstrap.servers": os.Getenv("BOOTSTRAP_SERVERS")})
 	if err != nil {
+		fmt.Printf("Unable to initiate the producer, Error: %v\n", err)
 	}
 }
 
