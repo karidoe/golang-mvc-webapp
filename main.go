@@ -12,15 +12,16 @@ import (
 )
 
 func init() {
-	p, err := kafka.NewProducer(&kafka.ConfigMap{"bootstrap.servers": "kafka:29092"})
+	producer, err := kafka.NewProducer(&kafka.ConfigMap{"bootstrap.servers": "kafka:29092"})
+
 	if err != nil {
 		panic(err)
 	}
 
-	defer p.Close()
+	defer producer.Close()
 
 	go func() {
-		for e := range p.Events() {
+		for e := range producer.Events() {
 			fmt.Println(e)
 			switch ev := e.(type) {
 			case *kafka.Message:
@@ -36,14 +37,14 @@ func init() {
 	// Produce messages to topic (asynchronously)
 	topic := "createOrder"
 	for _, word := range []string{"{orderCreated:9000202}"} {
-		p.Produce(&kafka.Message{
+		producer.Produce(&kafka.Message{
 			TopicPartition: kafka.TopicPartition{Topic: &topic, Partition: kafka.PartitionAny},
 			Value:          []byte(word),
 		}, nil)
 	}
 
 	// Wait for message deliveries before shutting down
-	p.Flush(1 * 1000)
+	producer.Flush(1 * 1000)
 }
 
 func main() {
