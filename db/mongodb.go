@@ -2,9 +2,10 @@ package db
 
 import (
 	"fmt"
+	. "golang-mvc-webapp/config"
 	"gopkg.in/mgo.v2"
-	"golang-mvc-webapp/config"
 	"log"
+	"src/gopkg.in/mgo.v2"
 )
 
 type Mongodb struct {
@@ -21,15 +22,15 @@ func init() {
 
 	dsn := fmt.Sprintf(
 		"mongodb://%s:%s@mongo/%s", 
-		config.Getenv("APP_MONGO_USERNAME"), 
-		config.Getenv("APP_MONGO_PASSWORD"), 
-		config.Getenv("APP_MONGO_DATABASE"),
+		Getenv("APP_MONGO_USERNAME"),
+		Getenv("APP_MONGO_PASSWORD"),
+		Getenv("APP_MONGO_DATABASE"),
 	)
 	
 	session, err = mgo.Dial(dsn)
 
 	if (err != nil) {
-		log.Fatal("Cannot Connect Mongodb")
+		log.Fatalf("Cannot Connect Mongodb %v", err)
 	}
 }
 

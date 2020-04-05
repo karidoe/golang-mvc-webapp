@@ -2,7 +2,9 @@ package products
 
 import (
 	"encoding/json"
+	"fmt"
 	"golang-mvc-webapp/models"
+	"github.com/gorilla/mux"
 	"net/http"
 )
 
@@ -20,13 +22,16 @@ type ErrorResponse struct {
 
 var ProductModel *models.ProductModel = models.GetProductModel()
 
+// To insert a new product into the products collection
 func createAction(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json;charset=utf-8")
 
 	var item models.ProductItem
+	var err error
+
 	_ = json.NewDecoder(r.Body).Decode(&item)
 
-	if errors := ProductModel.Validate(item); errors != nil {
+	if errors := ProductModel.Validate(item); len(errors) != 0 {
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(&ErrorResponse{
 			Success: false,
@@ -36,7 +41,7 @@ func createAction(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := ProductModel.Create(item); err != nil {
+	if err = ProductModel.Create(&item); err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(w).Encode(&ErrorResponse{
 			Success: false,
@@ -54,6 +59,7 @@ func createAction(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+//To show all existing products in the products collection
 func indexAction(w http.ResponseWriter, r *http.Request) {
 	var results []models.ProductItem
 	results, err := ProductModel.All()
@@ -68,4 +74,19 @@ func indexAction(w http.ResponseWriter, r *http.Request) {
 	response.Data = results
 
 	json.NewEncoder(w).Encode(results)
+}
+
+func getOneAction(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json;charset=utf-8")
+	fmt.Fprintf(w, "Get Info %#v", mux.Vars(r)["id"])
+}
+
+func updateAction(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json;charset=utf-8")
+	fmt.Fprintf(w, "Update Product %#v", mux.Vars(r)["id"])
+}
+
+func deleteAction(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json;charset=utf-8")
+	fmt.Fprintf(w, "Delete Product ID: %#v", mux.Vars(r)["id"])
 }

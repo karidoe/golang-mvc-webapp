@@ -51,7 +51,6 @@ services:
     build: ./docker-files/web
     depends_on:
         - "mongo"
-        - "mongo-express"
     command: CompileDaemon --build="go build -o /go/bin/main main.go" -command="/go/bin/main"
     ports:
       - '80:80'

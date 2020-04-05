@@ -30,11 +30,13 @@ func New() *ProductModel {
 	return &ProductModel{}
 }
 
-func (c *ProductModel) Create(p ProductItem) error {
+func (c *ProductModel) Create(p *ProductItem) error {
 	session := db.GetMongodb().GetSession()
 	defer session.Close()
 
-	err := session.DB(dbName).C("products").Insert(p)
+	p.Id = bson.NewObjectId()
+	err := session.DB(dbName).C("products").Insert(*p)
+
 	return err
 }
 
@@ -50,13 +52,13 @@ func (c *ProductModel) All() ([]ProductItem, error) {
 
 func (c *ProductModel) Validate(item ProductItem) map[string]string {
 	errs := validate.Struct(item)
-	messages := make(map[string]string)
+	messages := map[string]string{}
 
 	if errs != nil {
 		for _, err := range errs.(validator.ValidationErrors) {
 			messages[err.Field()] = err.(error).Error()
 		}
-		return messages
 	}
-	return nil
+
+	return messages
 }
